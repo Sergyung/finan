@@ -71,6 +71,17 @@ if(isset($_POST['submit'])){
 		die( "Неуказано название бумаги.");
 	}
 
+	/* 
+
+	Пробую вывести нужное количество бумаг 
+
+	$query1 = "SELECT * FROM papers WHERE id = 3"; 
+	$result1 = mysqli_query($link, $query1);
+	$row1 = mysqli_fetch_assoc($result1);
+	echo($row1['lot_paper']);
+
+	*/
+
 	$transact = 1;
 
 	$date = $_POST['date'];
