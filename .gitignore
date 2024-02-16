@@ -1,0 +1,6 @@
+```
+*.sql
+target/
+*.iml
+.idea/
+```
