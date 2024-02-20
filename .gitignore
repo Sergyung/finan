@@ -1,5 +1,6 @@
 ```
 *.sql
+document.txt
 target/
 *.iml
 .idea/
