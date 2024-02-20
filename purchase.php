@@ -35,12 +35,20 @@
 				<td><input type="number" name="lot"></td>
 			</tr>
 			<tr>
+				<td>Покупка с плечом</td>
+				<td><input type="checkbox" name="margin"></td>
+			</tr>
+			<tr>
 				<td>Дата покупки</td>
 				<td><input type="date" name="date"></td>
 			</tr>
 			<tr>
 				<td>Цена за 1 шт</td>
 				<td><input type="text" name="price"></td>
+			</tr>
+			<tr>
+				<td>НКД (для облигаций)</td>
+				<td><input type="text" name="nkd"></td>
 			</tr>
 			<tr>
 				<td>Комиссия брокера</td>
@@ -69,22 +77,31 @@ if(isset($_POST['submit'])){
 		die( "Неуказано название бумаги.");
 	}
 
-	// Определем количество бумаг в одном лоте 
+	// Определем количество бумаг в одном лоте и тип бумаги
 
-	$query1 = "SELECT * FROM papers WHERE id_paper = '$name'"; // WHERE id = 3
+	$query1 = "SELECT * FROM papers WHERE id_paper = '$name'";
 	$result = mysqli_query($link, $query1);
 	$res = mysqli_fetch_assoc($result);
 	
 	$count = $res['lot_paper'];
+	$vid = $res['id_typePaper'];
+
+	// Определяем остаток баланса после последней сделки
+
+	$query2 = "SELECT id, balance FROM actions ORDER BY id DESC LIMIT 0, 1";
+	$result2 = mysqli_query($link, $query2);
+	$res2 = mysqli_fetch_assoc($result2);
+
+	$restMoney = $res2['balance'];
 		
 	$transactPurch = 1; // номер транзакции 1 - покупка
 	$transactComm = 2; // номер транзакции 2 - комиссия брокера
 
-	if(isset($_POST["date"]) && !empty($_POST["date"])){
-		$date = $_POST['date'];
-	} else {
-		die( "Неверно указана дата покупки.");
-	}
+	// if(isset($_POST["date"]) && !empty($_POST["date"])){
+	// 	$date = $_POST['date'];
+	// } else {
+	// 	die( "Неверно указана дата покупки.");
+	// }
 
 	if(is_numeric($_POST['lot']) && $_POST['lot'] > 0){
 		$lot = $_POST['lot'];
@@ -98,25 +115,39 @@ if(isset($_POST['submit'])){
 		die( "Неверно указана цена купленных бумаг.");
 	}
 
-	if(is_numeric($_POST['award']) && $_POST['award'] > 0){
-		$award = $_POST['award'];
+	if ($vid == 2){
+		if(is_numeric($_POST['nkd']) && $_POST['nkd'] >= 0){
+			$nkd = $_POST['nkd'];
+		} else {
+			die( "Неверно указан НКД облигации.");
+		}
 	} else {
-		die( "Неверно указана цена купленных бумаг.");
+		$nkd = 0;
 	}
 
-	$sum = $count * $lot * $price;
+	// if(is_numeric($_POST['award']) && $_POST['award'] > 0){
+	// 	$award = $_POST['award'];
+	// } else {
+	// 	die( "Неверно указана цена купленных бумаг.");
+	// }
 
-	$sql_purch = "INSERT INTO actions (id_paper, id_transac, lot, date_action, price_paper, sum_action) VALUES ('$name', '$transactPurch',  '$lot', '$date', '$price', $sum)";
+	$sum = ($count * $price + $nkd) * $lot;
+	$balans = $restMoney - $sum;
 
-	$result_purch = mysqli_query($link, $sql_purch) or die( mysqli_error($link) );
+	// echo $vid.'<br>';
+	echo $balans;
 
-	$sql_comm = "INSERT INTO actions (id_paper, id_transac, date_action, sum_action) VALUES ('$name', '$transactComm',  '$date', $award)";
+	// $sql_purch = "INSERT INTO actions (id_paper, id_transac, lot, date_action, price_paper, sum_action) VALUES ('$name', '$transactPurch',  '$lot', '$date', '$price', $sum)";
 
-	$result_comm = mysqli_query($link, $sql_comm) or die( mysqli_error($link) );
+	// $result_purch = mysqli_query($link, $sql_purch) or die( mysqli_error($link) );
 
-	if (isset($result_purch) && isset($result_comm)) {
-		echo '<h4>Запрос на добавление в базу данных прошел.</h4>';
-	}
+	// $sql_comm = "INSERT INTO actions (id_paper, id_transac, date_action, sum_action) VALUES ('$name', '$transactComm',  '$date', $award)";
+
+	// $result_comm = mysqli_query($link, $sql_comm) or die( mysqli_error($link) );
+
+	// if (isset($result_purch) && isset($result_comm)) {
+	// 	echo '<h4>Запрос на добавление в базу данных прошел.</h4>';
+	// }
 }
 
 
