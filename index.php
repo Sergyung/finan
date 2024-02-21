@@ -7,6 +7,8 @@
 </head>
 <body>
 	<h1>Финанс</h1>
-	<a href="purchase.php">Покупка</a>
+	<p><a href="purchase.php">Покупка</a></p>
+	<p><a href="replenishment.php">Пополнение счета</a></p>
+	<p><a href="movement.php">Движение по счету</a></p>
 </body>
 </html>
