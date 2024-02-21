@@ -127,10 +127,10 @@ if(isset($_POST['submit'])){
 		$nkd = 0;
 	}
 
-	if(is_numeric($_POST['award']) && $_POST['award'] > 0){
+	if(is_numeric($_POST['award']) && $_POST['award'] >= 0){
 		$award = $_POST['award'];
 	} else {
-		die( "Неверно указана цена купленных бумаг.");
+		die( "Неверно указана комиссия брокера.");
 	}
 
 	$sum = ($count * $price + $nkd) * $lot;
