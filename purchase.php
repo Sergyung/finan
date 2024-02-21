@@ -58,6 +58,10 @@
 				<td></td>
 				<td><input type="submit" name="submit"></td>
 			</tr>
+			<tr>
+				<td colspan="2"><a href="index.php">Вернуться на главную</a></td>
+				
+			</tr>
 		</table>
 	</form>
 </body>
@@ -68,8 +72,6 @@
 
 
 if(isset($_POST['submit'])){
-
-	// var_dump($_POST);
 
 	if(isset($_POST["paper"]) && !empty($_POST["paper"])) {
 	    $name = $_POST["paper"];
@@ -97,11 +99,11 @@ if(isset($_POST['submit'])){
 	$transactPurch = 1; // номер транзакции 1 - покупка
 	$transactComm = 2; // номер транзакции 2 - комиссия брокера
 
-	// if(isset($_POST["date"]) && !empty($_POST["date"])){
-	// 	$date = $_POST['date'];
-	// } else {
-	// 	die( "Неверно указана дата покупки.");
-	// }
+	if(isset($_POST["date"]) && !empty($_POST["date"])){
+		$date = $_POST['date'];
+	} else {
+		die( "Неверно указана дата покупки.");
+	}
 
 	if(is_numeric($_POST['lot']) && $_POST['lot'] > 0){
 		$lot = $_POST['lot'];
@@ -125,29 +127,37 @@ if(isset($_POST['submit'])){
 		$nkd = 0;
 	}
 
-	// if(is_numeric($_POST['award']) && $_POST['award'] > 0){
-	// 	$award = $_POST['award'];
-	// } else {
-	// 	die( "Неверно указана цена купленных бумаг.");
-	// }
+	if(is_numeric($_POST['award']) && $_POST['award'] > 0){
+		$award = $_POST['award'];
+	} else {
+		die( "Неверно указана цена купленных бумаг.");
+	}
 
 	$sum = ($count * $price + $nkd) * $lot;
-	$balans = $restMoney - $sum;
+	
+	// Проверка остатка баланса, чтобы при торговле без маржи не был меньше 0
 
-	// echo $vid.'<br>';
-	echo $balans;
+	if ( $_POST['margin'] == '' && ($restMoney - $sum - $award) < 0)
+	{
+		die( "Остаток баланса не может быть меньше нуля.");
+    } else {
+        $balans = $restMoney - $sum;
+    }
 
-	// $sql_purch = "INSERT INTO actions (id_paper, id_transac, lot, date_action, price_paper, sum_action) VALUES ('$name', '$transactPurch',  '$lot', '$date', '$price', $sum)";
+    $balans2 = $balans - $award;
 
-	// $result_purch = mysqli_query($link, $sql_purch) or die( mysqli_error($link) );
+	
+	$sql_purch = "INSERT INTO actions (id_paper, id_transac, lot, date_action, price_paper, nkd, sum_action, balance) VALUES ('$name', '$transactPurch',  '$lot', '$date', '$price', $nkd, $sum, $balans)";
 
-	// $sql_comm = "INSERT INTO actions (id_paper, id_transac, date_action, sum_action) VALUES ('$name', '$transactComm',  '$date', $award)";
+	$result_purch = mysqli_query($link, $sql_purch) or die( mysqli_error($link) );
 
-	// $result_comm = mysqli_query($link, $sql_comm) or die( mysqli_error($link) );
+	$sql_comm = "INSERT INTO actions (id_paper, id_transac, date_action, sum_action, balance) VALUES ('$name', '$transactComm',  '$date', $award, $balans2)";
 
-	// if (isset($result_purch) && isset($result_comm)) {
-	// 	echo '<h4>Запрос на добавление в базу данных прошел.</h4>';
-	// }
+	$result_comm = mysqli_query($link, $sql_comm) or die( mysqli_error($link) );
+
+	if (isset($result_purch) && isset($result_comm)) {
+		echo '<h4>Запрос на добавление в базу данных прошел.</h4>';
+	}
 }
 
 
