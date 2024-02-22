@@ -10,5 +10,6 @@
 	<p><a href="purchase.php">Покупка</a></p>
 	<p><a href="replenishment.php">Пополнение счета</a></p>
 	<p><a href="movement.php">Движение по счету</a></p>
+	<p><a href="papers.php">Бумаги</a></p>
 </body>
 </html>
